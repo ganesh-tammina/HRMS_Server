@@ -17,8 +17,8 @@ router.post("/", async (req: Request, res: Response) => {
 
     // Insert personal details
     await conn.query(
-      `INSERT INTO personal_details 
-       (candidate_id, FirstName, MiddleName, LastName, PhoneNumber, email, gender, initials) 
+      `INSERT INTO personal_details
+       (candidate_id, FirstName, MiddleName, LastName, PhoneNumber, email, gender, initials)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         candidateId,
@@ -34,8 +34,8 @@ router.post("/", async (req: Request, res: Response) => {
 
     // Insert job details
     await conn.query(
-      `INSERT INTO job_details 
-       (candidate_id, JobTitle, Department, JobLocation, WorkType, BussinessUnit) 
+      `INSERT INTO job_details
+       (candidate_id, JobTitle, Department, JobLocation, WorkType, BussinessUnit)
        VALUES (?, ?, ?, ?, ?, ?)`,
       [
         candidateId,
@@ -49,16 +49,16 @@ router.post("/", async (req: Request, res: Response) => {
 
     // Insert offer details
     await conn.query(
-      `INSERT INTO offer_details 
-       (candidate_id, DOJ, offerValidity, JoiningDate) 
+      `INSERT INTO offer_details
+       (candidate_id, DOJ, offerValidity, JoiningDate)
        VALUES (?, ?, ?, ?)`,
       [candidateId, offerDetails.DOJ, offerDetails.offerValidity, offerDetails.JoiningDate]
     );
 
     // Insert employee credentials
     await conn.query(
-      `INSERT INTO employee_credentials 
-       (candidate_id, companyEmail, password) 
+      `INSERT INTO employee_credentials
+       (candidate_id, companyEmail, password)
        VALUES (?, ?, ?)`,
       [candidateId, employeeCredentials.companyEmail, employeeCredentials.password]
     );
@@ -209,8 +209,8 @@ router.put("/:id/personal", async (req: Request, res: Response) => {
   const { FirstName, MiddleName, LastName, PhoneNumber, email, gender, initials } = req.body;
   try {
     await pool.query(
-      `UPDATE personal_details 
-       SET FirstName=?, MiddleName=?, LastName=?, PhoneNumber=?, email=?, gender=?, initials=? 
+      `UPDATE personal_details
+       SET FirstName=?, MiddleName=?, LastName=?, PhoneNumber=?, email=?, gender=?, initials=?
        WHERE candidate_id=?`,
       [FirstName, MiddleName, LastName, PhoneNumber, email, gender, initials, id]
     );
@@ -225,7 +225,7 @@ router.put("/:id/job", async (req: Request, res: Response) => {
   const { JobTitle, Department, JobLocation, WorkType, BussinessUnit } = req.body;
   try {
     await pool.query(
-      `UPDATE job_details 
+    `UPDATE job_details 
        SET JobTitle=?, Department=?, JobLocation=?, WorkType=?, BussinessUnit=? 
        WHERE candidate_id=?`,
       [JobTitle, Department, JobLocation, WorkType, BussinessUnit, id]
@@ -241,8 +241,8 @@ router.put("/:id/offer", async (req: Request, res: Response) => {
   const { DOJ, offerValidity, JoiningDate } = req.body;
   try {
     await pool.query(
-      `UPDATE offer_details 
-       SET DOJ=?, offerValidity=?, JoiningDate=? 
+      `UPDATE offer_details
+       SET DOJ=?, offerValidity=?, JoiningDate=?
        WHERE candidate_id=?`,
       [DOJ, offerValidity, JoiningDate, id]
     );
@@ -257,8 +257,8 @@ router.put("/:id/credentials", async (req: Request, res: Response) => {
   const { companyEmail, password } = req.body;
   try {
     await pool.query(
-      `UPDATE employee_credentials 
-       SET companyEmail=?, password=? 
+      `UPDATE employee_credentials
+       SET companyEmail=?, password=?
        WHERE candidate_id=?`,
       [companyEmail, password, id]
     );
