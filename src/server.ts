@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import dotenv from "dotenv";
 import employeeRoutes from "./routes/employeeRoutes";
+import { pool } from "./config/database";
 
 dotenv.config();
 
@@ -24,7 +25,8 @@ class Server {
   }
 
   public start(): void {
-    this.app.listen(this.port, () => {
+    this.app.listen(this.port, async () => {
+      const conn = await pool.getConnection();
       console.log(`✅ Server running on port ${this.port}`);
     });
   }
