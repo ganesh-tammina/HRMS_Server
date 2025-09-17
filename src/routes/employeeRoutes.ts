@@ -2,17 +2,102 @@ import { Router, Request, Response } from "express";
 import { pool } from "../config/database";
 
 const router = Router();
-
-/* -------------------- CREATE candidate -------------------- */
-router.post("/", async (req: Request, res: Response) => {
+/* -------------------- CREATE candidate and JD -------------------- */
+router.post("/jd", async (req: Request, res: Response) => {
   const conn = await pool.getConnection();
   try {
-    const { personalDetails, jobDetailsForm, offerDetails, employeeCredentials } = req.body;
+    const { personalDetails, jobDetailsForm } = req.body;
+    await conn.beginTransaction();
+    const [candidateResult]: any = await conn.query(
+      "INSERT INTO candidates VALUES ()"
+    );
+    const candidateId = candidateResult.insertId;
+    await conn.query(
+      `INSERT INTO personal_details
+       (candidate_id, FirstName, MiddleName, LastName, PhoneNumber, email, gender, initials)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        candidateId,
+        personalDetails.FirstName,
+        personalDetails.MiddleName,
+        personalDetails.LastName,
+        personalDetails.PhoneNumber,
+        personalDetails.email,
+        personalDetails.gender,
+        personalDetails.initials,
+      ]
+    );
+    await conn.query(
+      `INSERT INTO job_details
+       (candidate_id, JobTitle, Department, JobLocation, WorkType, BussinessUnit)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        candidateId,
+        jobDetailsForm.JobTitle,
+        jobDetailsForm.Department,
+        jobDetailsForm.JobLocation,
+        jobDetailsForm.WorkType,
+        jobDetailsForm.BussinessUnit,
+      ]
+    );
+    await conn.commit();
+    res
+      .status(201)
+      .json({ message: "Candidate created successfully", candidateId });
+  } catch (err: any) {
+    await conn.rollback();
+    res.status(500).json({ error: err.message });
+  } finally {
+    conn.release();
+  }
+});
+/* -------------------- CREATE Offer Details -------------------- */
+router.post("/offer-details", async (req: Request, res: Response) => {
+  const conn = await pool.getConnection();
+  try {
+    const { candidateId, offerDetails } = req.body;
+
+    // Insert offer details
+    await conn.query(
+      `INSERT INTO offer_details
+       (candidate_id, DOJ, offerValidity, JoiningDate)
+       VALUES (?, ?, ?, ?)`,
+      [
+        candidateId,
+        offerDetails.DOJ,
+        offerDetails.offerValidity,
+        offerDetails.JoiningDate,
+      ]
+    );
+    await conn.commit();
+    res
+      .status(201)
+      .json({ message: "Candidate created successfully", candidateId });
+  } catch (err: any) {
+    await conn.rollback();
+    res.status(500).json({ error: err.message });
+  } finally {
+    conn.release();
+  }
+});
+
+/* -------------------- CREATE candidate -------------------- */
+router.post("/uhhb", async (req: Request, res: Response) => {
+  const conn = await pool.getConnection();
+  try {
+    const {
+      personalDetails,
+      jobDetailsForm,
+      offerDetails,
+      employeeCredentials,
+    } = req.body;
 
     await conn.beginTransaction();
 
     // Insert into candidates master table (auto id)
-    const [candidateResult]: any = await conn.query("INSERT INTO candidates VALUES ()");
+    const [candidateResult]: any = await conn.query(
+      "INSERT INTO candidates VALUES ()"
+    );
     const candidateId = candidateResult.insertId;
 
     // Insert personal details
@@ -52,7 +137,12 @@ router.post("/", async (req: Request, res: Response) => {
       `INSERT INTO offer_details
        (candidate_id, DOJ, offerValidity, JoiningDate)
        VALUES (?, ?, ?, ?)`,
-      [candidateId, offerDetails.DOJ, offerDetails.offerValidity, offerDetails.JoiningDate]
+      [
+        candidateId,
+        offerDetails.DOJ,
+        offerDetails.offerValidity,
+        offerDetails.JoiningDate,
+      ]
     );
 
     // Insert employee credentials
@@ -60,11 +150,17 @@ router.post("/", async (req: Request, res: Response) => {
       `INSERT INTO employee_credentials
        (candidate_id, companyEmail, password)
        VALUES (?, ?, ?)`,
-      [candidateId, employeeCredentials.companyEmail, employeeCredentials.password]
+      [
+        candidateId,
+        employeeCredentials.companyEmail,
+        employeeCredentials.password,
+      ]
     );
 
     await conn.commit();
-    res.status(201).json({ message: "Candidate created successfully", candidateId });
+    res
+      .status(201)
+      .json({ message: "Candidate created successfully", candidateId });
   } catch (err: any) {
     await conn.rollback();
     res.status(500).json({ error: err.message });
@@ -206,13 +302,30 @@ router.get("/:id/credentials", async (req: Request, res: Response) => {
 /* -------------------- UPDATE parts separately -------------------- */
 router.put("/:id/personal", async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { FirstName, MiddleName, LastName, PhoneNumber, email, gender, initials } = req.body;
+  const {
+    FirstName,
+    MiddleName,
+    LastName,
+    PhoneNumber,
+    email,
+    gender,
+    initials,
+  } = req.body;
   try {
     await pool.query(
       `UPDATE personal_details
        SET FirstName=?, MiddleName=?, LastName=?, PhoneNumber=?, email=?, gender=?, initials=?
        WHERE candidate_id=?`,
-      [FirstName, MiddleName, LastName, PhoneNumber, email, gender, initials, id]
+      [
+        FirstName,
+        MiddleName,
+        LastName,
+        PhoneNumber,
+        email,
+        gender,
+        initials,
+        id,
+      ]
     );
     res.json({ message: "Personal details updated successfully" });
   } catch (err: any) {
@@ -222,10 +335,11 @@ router.put("/:id/personal", async (req: Request, res: Response) => {
 
 router.put("/:id/job", async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { JobTitle, Department, JobLocation, WorkType, BussinessUnit } = req.body;
+  const { JobTitle, Department, JobLocation, WorkType, BussinessUnit } =
+    req.body;
   try {
     await pool.query(
-    `UPDATE job_details 
+      `UPDATE job_details 
        SET JobTitle=?, Department=?, JobLocation=?, WorkType=?, BussinessUnit=? 
        WHERE candidate_id=?`,
       [JobTitle, Department, JobLocation, WorkType, BussinessUnit, id]
@@ -270,8 +384,11 @@ router.put("/:id/credentials", async (req: Request, res: Response) => {
 
 /* -------------------- DELETE candidate -------------------- */
 router.delete("/:id", async (req: Request, res: Response) => {
-  const [result]: any = await pool.query("DELETE FROM candidates WHERE id=?", [req.params.id]);
-  if (result.affectedRows === 0) return res.status(404).send("Candidate not found");
+  const [result]: any = await pool.query("DELETE FROM candidates WHERE id=?", [
+    req.params.id,
+  ]);
+  if (result.affectedRows === 0)
+    return res.status(404).send("Candidate not found");
   res.send("Candidate deleted successfully");
 });
 
