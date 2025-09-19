@@ -1,9 +1,11 @@
+// src/server.ts
 import express, { Application } from "express";
 import dotenv from "dotenv";
-import employeeRoutes from "./routes/employeeRoutes";
-import { pool } from "./config/database";
-import { sendMail } from "./routes/mailer";
 import cors from "cors";
+import { pool } from "./config/database";
+import candidateRoutes from "./routes/candidates"; // our new index.ts
+import { sendMail } from "./routes/mailer";
+
 dotenv.config();
 
 class Server {
@@ -23,22 +25,16 @@ class Server {
   }
 
   private routes(): void {
-    this.app.use("/candidates", employeeRoutes);
+    this.app.use("/candidates", candidateRoutes);
     this.app.post("/send-email", async (req, res) => {
       const { to, subject, text } = req.body;
-      console.log(to);
       if (!to || !subject || !text) {
-        return res.status(400).json({
-          success: false,
-          error: "Missing required fields (to, subject, text)",
-        });
+        return res.status(400).json({ success: false, error: "Missing required fields (to, subject, text)" });
       }
-
       try {
         const result = await sendMail(to, subject, text, `<p>${text}</p>`);
         res.json({ success: true, messageId: result.messageId });
       } catch (error) {
-        console.error("❌ Error in /send-email:", error);
         res.status(500).json({ success: false, error: "Failed to send email" });
       }
     });
@@ -46,7 +42,7 @@ class Server {
 
   public start(): void {
     this.app.listen(this.port, async () => {
-      const conn = await pool.getConnection();
+      await pool.getConnection();
       console.log(`✅ Server running on port ${this.port}`);
     });
   }
