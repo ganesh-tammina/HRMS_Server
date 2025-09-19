@@ -58,22 +58,21 @@ router.post("/jd", async (req: Request, res: Response) => {
 router.post("/offer-details", async (req: Request, res: Response) => {
   const conn = await pool.getConnection();
   try {
+    await conn.beginTransaction(); // 🔑 Add this
     const { candidateId, offerDetails } = req.body;
 
-    // Check candidate exists
     const [candidateRows]: any = await conn.query(
       "SELECT id FROM candidates WHERE id = ?",
       [candidateId]
     );
 
     if (candidateRows.length === 0) {
-      conn.release();
+      await conn.rollback();
       return res
         .status(400)
         .json({ error: `Candidate with id ${candidateId} does not exist` });
     }
 
-    // Insert offer details
     await conn.query(
       `INSERT INTO offer_details
        (candidate_id, DOJ, offerValidity, JoiningDate)
@@ -98,6 +97,7 @@ router.post("/offer-details", async (req: Request, res: Response) => {
     conn.release();
   }
 });
+
 
 /* -------------------- CREATE candidate -------------------- */
 router.post("/udd", async (req: Request, res: Response) => {
@@ -188,46 +188,11 @@ router.post("/udd", async (req: Request, res: Response) => {
 });
 
 
-router.get("/", async (req: Request, res: Response) => {
-  const [rows]: any = await pool.query(
-    `SELECT c.id,
-            p.FirstName, p.MiddleName, p.LastName, p.PhoneNumber, p.email, p.gender, p.initials,
-            j.JobTitle, j.Department, j.JobLocation, j.WorkType, j.BussinessUnit,
-            o.DOJ, o.offerValidity, o.JoiningDate,
-            e.companyEmail, e.password
-     FROM candidates c
-     LEFT JOIN personal_details p ON c.id = p.candidate_id
-     LEFT JOIN job_details j ON c.id = j.candidate_id
-     LEFT JOIN offer_details o ON c.id = o.candidate_id
-     LEFT JOIN employee_credentials e ON c.id = e.candidate_id`
-  );
-
-  const formatted = rows.map((row: any) => ({
-    id: row.id,
-    personalDetails: {
-      FirstName: row.FirstName,
-      MiddleName: row.MiddleName,
-      LastName: row.LastName,
-      PhoneNumber: row.PhoneNumber,
-      email: row.email,
-      gender: row.gender,
-      initials: row.initials,
-    },
-    jobDetailsForm: {
-      JobTitle: row.JobTitle,
-      Department: row.Department,
-      JobLocation: row.JobLocation,
-      WorkType: row.WorkType,
-      BussinessUnit: row.BussinessUnit,
-    },
-  }));
-
-  res.json(formatted);
-});
-
 
 /* -------------------- READ all candidates (nested) -------------------- */
 router.get("/", async (req: Request, res: Response) => {
+  console.log("/candidate")
+
   const [rows]: any = await pool.query(
     `SELECT c.id,
             p.FirstName, p.MiddleName, p.LastName, p.PhoneNumber, p.email, p.gender, p.initials,
@@ -240,7 +205,6 @@ router.get("/", async (req: Request, res: Response) => {
      LEFT JOIN offer_details o ON c.id = o.candidate_id
      LEFT JOIN employee_credentials e ON c.id = e.candidate_id`
   );
-
   const formatted = rows.map((row: any) => ({
     id: row.id,
     personalDetails: {
@@ -390,15 +354,16 @@ router.put("/:id/job", async (req: Request, res: Response) => {
   }
 });
 
-router.put("/:id/offer", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { DOJ, offerValidity, JoiningDate } = req.body;
+router.put("/update/offer", async (req: Request, res: Response) => {
+  console.log("update");
+  
+  const { DOJ, offerValidity, id } = req.body;
   try {
     await pool.query(
       `UPDATE offer_details
-       SET DOJ=?, offerValidity=?, JoiningDate=?
+       SET DOJ=?, offerValidity=?
        WHERE candidate_id=?`,
-      [DOJ, offerValidity, JoiningDate, id]
+      [DOJ, offerValidity,id]
     );
     res.json({ message: "Offer details updated successfully" });
   } catch (err: any) {
