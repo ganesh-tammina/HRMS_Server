@@ -36,8 +36,17 @@ getRouter.get("/", async (req: Request, res: Response) => {
       WorkType: row.WorkType,
       BussinessUnit: row.BussinessUnit,
     },
+    offerDetails: {
+      DOJ: row.DOJ,
+      offerValidity: row.offerValidity,
+      JoiningDate: row.JoiningDate,
+    },
+    employeeCredentials: {
+      companyEmail: row.companyEmail,
+      password: row.password,
+    },
   }));
-  res.json(formatted);
+  res.json({ candidates: formatted });
 });
 
 /* READ candidate by ID */
