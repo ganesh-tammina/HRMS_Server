@@ -55,17 +55,36 @@ postRouter.post("/jd", async (req: Request, res: Response) => {
 
 /* CREATE Offer Details */
 postRouter.post("/offer-details", async (req: Request, res: Response) => {
+  console.log("POST /offer-details called");
+
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
+
     const { candidateId, offerDetails } = req.body;
 
-    const [candidateRows]: any = await conn.query("SELECT id FROM candidates WHERE id = ?", [candidateId]);
+    // Validate input
+    if (!candidateId) {
+      await conn.rollback();
+      return res.status(400).json({ error: "candidateId is required" });
+    }
+
+    if (!offerDetails || !offerDetails.DOJ || !offerDetails.offerValidity) {
+      await conn.rollback();
+      return res.status(400).json({ error: "offerDetails, DOJ, and offerValidity are required" });
+    }
+
+    // Check if candidate exists
+    const [candidateRows]: any = await conn.query(
+      "SELECT id FROM candidates WHERE id = ?",
+      [candidateId]
+    );
     if (candidateRows.length === 0) {
       await conn.rollback();
       return res.status(400).json({ error: `Candidate with id ${candidateId} does not exist` });
     }
 
+    // Insert offer details
     await conn.query(
       `INSERT INTO offer_details
        (candidate_id, DOJ, offerValidity, JoiningDate)
@@ -74,14 +93,20 @@ postRouter.post("/offer-details", async (req: Request, res: Response) => {
         candidateId,
         offerDetails.DOJ,
         offerDetails.offerValidity,
-        offerDetails.JoiningDate,
+        offerDetails.JoiningDate || null, // optional
       ]
     );
 
     await conn.commit();
-    res.status(201).json({ message: "Offer details created successfully", candidateId });
+
+    res.status(201).json({
+      message: "Offer details created successfully",
+      candidateId,
+      offerDetails,
+    });
   } catch (err: any) {
     await conn.rollback();
+    console.error("Error creating offer details:", err);
     res.status(500).json({ error: err.message });
   } finally {
     conn.release();

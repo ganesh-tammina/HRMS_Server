@@ -80,7 +80,7 @@ getRouter.get("/:id/job", async (req: Request, res: Response) => {
   res.json({ candidateId: req.params.id, jobDetailsForm: rows[0] || {} });
 });
 
-getRouter.get("/:id/offer", async (req: Request, res: Response) => {
+getRouter.get("/:id/offer-details", async (req: Request, res: Response) => {
   const [rows]: any = await pool.query("SELECT * FROM offer_details WHERE candidate_id = ?", [req.params.id]);
   res.json({ candidateId: req.params.id, offerDetails: rows[0] || {} });
 });

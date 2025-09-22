@@ -39,20 +39,21 @@ putRouter.put("/:id/job", async (req: Request, res: Response) => {
 });
 
 /* UPDATE offer */
-putRouter.put("/update/offer", async (req: Request, res: Response) => {
-  const { DOJ, offerValidity, id } = req.body;
+putRouter.put("/offer-details", async (req: Request, res: Response) => {
+  const { DOJ, offerValidity, JoiningDate, id } = req.body;
   try {
     await pool.query(
       `UPDATE offer_details
-       SET DOJ=?, offerValidity=?
+       SET DOJ=?, offerValidity=?, JoiningDate=?
        WHERE candidate_id=?`,
-      [DOJ, offerValidity, id]
+      [DOJ, offerValidity, JoiningDate, id]
     );
     res.json({ message: "Offer details updated successfully" });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 /* UPDATE credentials */
 putRouter.put("/:id/credentials", async (req: Request, res: Response) => {
@@ -70,5 +71,11 @@ putRouter.put("/:id/credentials", async (req: Request, res: Response) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+putRouter.put("/test", async (req: Request, res: Response) => {
+
+  console.log("test");
+
+})
 
 export default putRouter;
