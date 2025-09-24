@@ -55,6 +55,23 @@ putRouter.put("/offer-details", async (req: Request, res: Response) => {
 });
 
 
+putRouter.put("/package-details", async (req: Request, res: Response) => {
+  const { annualSalary, basic, hra, medical, transport, special, subtotal, pfEmployer, pfEmployee, total, id } = req.body;
+  try {
+    await pool.query(
+      `UPDATE packagedetails
+       SET annualSalary=?, basic=?, hra=?, medical=?, transport=?, special=?, subtotal=?, pfEmployer=?, pfEmployee=?, total=?
+       WHERE candidate_id=?`,
+      [annualSalary, basic, hra, medical, transport, special, subtotal, pfEmployer, pfEmployee, total, id]
+    );
+    res.json({ message: "package details updated successfully" });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
 /* UPDATE credentials */
 putRouter.put("/:id/credentials", async (req: Request, res: Response) => {
   const { id } = req.params;

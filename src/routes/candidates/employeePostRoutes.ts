@@ -113,6 +113,79 @@ postRouter.post("/offer-details", async (req: Request, res: Response) => {
   }
 });
 
+
+
+
+postRouter.post("/package-details", async (req: Request, res: Response) => {
+  console.log("POST /package-details called");
+
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    const { candidateId, packageDetails } = req.body;
+
+    // Validate input
+    if (!candidateId) {
+      await conn.rollback();
+      return res.status(400).json({ error: "candidateId is required" });
+    }
+
+    if (!packageDetails || !packageDetails.annualSalary) {
+      await conn.rollback();
+      return res.status(400).json({ error: "package Details and annualSalary are required" });
+    }
+
+    // Check if candidate exists
+    const [candidateRows]: any = await conn.query(
+      "SELECT id FROM candidates WHERE id = ?",
+      [candidateId]
+    );
+    if (candidateRows.length === 0) {
+      await conn.rollback();
+      return res.status(400).json({ error: `Candidate with id ${candidateId} does not exist` });
+    }
+
+    // Insert offer details
+    await conn.query(
+      `INSERT INTO packagedetails
+       (candidate_id, annualSalary,basic,hra,medical,transport,special,subtotal,pfEmployer,pfEmployee,total)
+       VALUES (?, ?, ?, ?,?,?,?,?,?,?,?)`,
+      [
+        candidateId,
+        packageDetails.annualSalary,
+        packageDetails.basic,
+        packageDetails.hra,
+        packageDetails.medical,
+        packageDetails.transport,
+        packageDetails.special,
+        packageDetails.subtotal,
+        packageDetails.pfEmployee,
+        packageDetails.pfEmployer,
+        packageDetails.total,
+      ]
+    );
+
+    await conn.commit();
+
+    res.status(201).json({
+      message: "PACKAGE created successfully",
+      candidateId,
+      packageDetails,
+    });
+  } catch (err: any) {
+    await conn.rollback();
+    console.error("Error creating offer details:", err);
+    res.status(500).json({ error: err.message });
+  } finally {
+    conn.release();
+  }
+});
+
+
+
+
+
 /* CREATE candidate (full) */
 postRouter.post("/udd", async (req: Request, res: Response) => {
   const conn = await pool.getConnection();

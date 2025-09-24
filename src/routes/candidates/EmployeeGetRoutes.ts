@@ -11,12 +11,13 @@ getRouter.get("/", async (req: Request, res: Response) => {
             p.FirstName, p.MiddleName, p.LastName, p.PhoneNumber, p.email, p.gender, p.initials,
             j.JobTitle, j.Department, j.JobLocation, j.WorkType, j.BussinessUnit,
             o.DOJ, o.offerValidity, o.JoiningDate,
-            e.companyEmail, e.password
+            e.companyEmail, e.password,m.annualSalary,m.basic,m.hra,m.medical,m.transport,m.special,m.subtotal,m.pfEmployer,m.pfEmployee,m.total
      FROM candidates c
      LEFT JOIN personal_details p ON c.id = p.candidate_id
      LEFT JOIN job_details j ON c.id = j.candidate_id
      LEFT JOIN offer_details o ON c.id = o.candidate_id
-     LEFT JOIN employee_credentials e ON c.id = e.candidate_id`
+     LEFT JOIN employee_credentials e ON c.id = e.candidate_id
+     LEFT JOIN packagedetails m ON c.id = m.candidate_id`
   );
   const formatted = rows.map((row: any) => ({
     id: row.id,
@@ -44,6 +45,18 @@ getRouter.get("/", async (req: Request, res: Response) => {
     employeeCredentials: {
       companyEmail: row.companyEmail,
       password: row.password,
+    },
+    packageDetails: {
+      annualSalary: row.annualSalary,
+      basic: row.basic,
+      hra: row.hra,
+      medical: row.medical,
+      transport: row.transport,
+      special: row.special,
+      subtotal: row.subtotal,
+      pfEmployer: row.pfEmployer,
+      pfEmployee: row.pfEmployee,
+      total: row.total,
     },
   }));
   res.json({ candidates: formatted });
@@ -85,8 +98,13 @@ getRouter.get("/:id/offer-details", async (req: Request, res: Response) => {
   res.json({ candidateId: req.params.id, offerDetails: rows[0] || {} });
 });
 
-getRouter.get("/:id/credentials", async (req: Request, res: Response) => {
-  const [rows]: any = await pool.query("SELECT * FROM employee_credentials WHERE candidate_id = ?", [req.params.id]);
+getRouter.get("/:id/offer-details", async (req: Request, res: Response) => {
+  const [rows]: any = await pool.query("SELECT * FROM offer_details WHERE candidate_id = ?", [req.params.id]);
+  res.json({ candidateId: req.params.id, offerDetails: rows[0] || {} });
+});
+
+getRouter.get("/:id/package-details", async (req: Request, res: Response) => {
+  const [rows]: any = await pool.query("SELECT * FROM packagedetails WHERE candidate_id = ?", [req.params.id]);
   res.json({ candidateId: req.params.id, employeeCredentials: rows[0] || {} });
 });
 
