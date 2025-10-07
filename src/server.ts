@@ -1,10 +1,11 @@
-// src/server.ts
 import express, { Application } from "express";
+import { Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { pool } from "./config/database";
-import candidateRoutes from "./routes/candidates"; // our new index.ts
-import { sendMail } from "./routes/mailer";
+import { config } from "./config/env";
+import index from "./routes/index";
+import { notFound } from "./middlewares/notFound.middleware";
 
 dotenv.config();
 
@@ -14,8 +15,12 @@ class Server {
 
   constructor() {
     this.app = express();
-    this.app.use(cors({ origin: "*" }));
-    this.port = Number(process.env.PORT);
+    var corsOptions = {
+      origin: ["http://127.0.0.1:5500"],
+      optionsSuccessStatus: 200,
+    };
+    this.app.use(cors(corsOptions));
+    this.port = config.PORT;
     this.middlewares();
     this.routes();
   }
@@ -25,25 +30,23 @@ class Server {
   }
 
   private routes(): void {
-    this.app.use("/candidates", candidateRoutes);
-    this.app.post("/send-email", async (req, res) => {
-      const { to, subject, text } = req.body;
-      if (!to || !subject || !text) {
-        return res.status(400).json({ success: false, error: "Missing required fields (to, subject, text)" });
-      }
-      try {
-        const result = await sendMail(to, subject, text, `<p>${text}</p>`);
-        res.json({ success: true, messageId: result.messageId });
-      } catch (error) {
-        res.status(500).json({ success: false, error: "Failed to send email" });
-      }
+    this.app.use("/api", index);
+    this.app.get("/api", async (req, res) => {
+      res.json("Server is running");
     });
+    this.app.use(notFound);
   }
 
   public start(): void {
     this.app.listen(this.port, async () => {
-      await pool.getConnection();
-      console.log(`✅ Server running on port ${this.port}`);
+      await pool.getConnection().then((res) => {
+        if (res) {
+          console.log(
+            "Connected to database on https://" + res.connection.config.host
+          );
+        }
+      });
+      console.log(`Server running on port http://localhost:${this.port}/api`);
     });
   }
 }

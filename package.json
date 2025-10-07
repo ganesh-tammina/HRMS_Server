@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "clean": "rimraf dist"
   },
   "keywords": [],
   "author": "",
@@ -17,7 +18,8 @@
     "express": "^5.1.0",
     "mysql2": "^3.14.4",
     "nodemailer": "^7.0.6",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "rimraf": "^6.0.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
