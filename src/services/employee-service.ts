@@ -3,6 +3,9 @@ import { Request, Response } from "express";
 import { EmployeesInterface } from "../interface/employee-interface";
 
 export default class Employeeservices implements EmployeesInterface {
+  editEmployees(req: Request, res: Response): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
   deleteEmployees(req: Request, res: Response): Promise<any> {
     throw new Error("Method not implemented.");
   }
@@ -67,9 +70,6 @@ export default class Employeeservices implements EmployeesInterface {
     throw new Error("Method not implemented.");
   }
   editStatutoryInfo(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-  editEmployees(req: Request, res: Response): Promise<any> {
     throw new Error("Method not implemented.");
   }
   addEmployees(req: Request, res: Response): Promise<any> {
