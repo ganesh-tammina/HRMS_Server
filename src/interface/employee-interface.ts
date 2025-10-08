@@ -25,4 +25,9 @@ export interface EmployeesInterface {
      viewStatutoryInfo(req: Request, res: Response): Promise<any>;
      deleteStatutoryInfo(req: Request, res: Response): Promise<any>;
      editStatutoryInfo(req: Request, res: Response): Promise<any>;
+
+}
+export interface LoginInterface{
+    login(req: Request, res: Response): Promise<any>;
+
 }
