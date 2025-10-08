@@ -29,5 +29,6 @@ export interface EmployeesInterface {
 }
 export interface LoginInterface{
     login(req: Request, res: Response): Promise<any>;
+    emailCheck(req: Request, res: Response): Promise<any>;
 
 }

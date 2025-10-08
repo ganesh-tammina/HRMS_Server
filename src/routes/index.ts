@@ -4,11 +4,13 @@ import { Request, Response } from "express";
 import { readFile } from "fs/promises";
 import multer from 'multer';
 import { ExcelProcessorService } from "../services/excel-processer-service";
+import EmployeeLoginController from "../controller/employee-login-controller";
 
 const upload = multer({ dest: "uploads/" });
 
 const router = Router();
 router.post("/v1/send-email", MailController.mailsender);
+router.post("/login",EmployeeLoginController.EmailCheck);
 router.post('/excel', upload.single('file'), ExcelProcessorService.extractData)
 router.get("/test", async (req, res) => {
   const file = await readFile("./src/db.json", "utf8");
