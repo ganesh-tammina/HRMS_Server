@@ -27,3 +27,7 @@ export interface EmployeesInterface {
      editStatutoryInfo(req: Request, res: Response): Promise<any>;
 
 }
+export interface LoginInterface{
+    login(req: Request, res: Response): Promise<any>;
+
+}
