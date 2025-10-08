@@ -4,7 +4,7 @@ import { pool } from "../config/database";
 
 export default class LoginService implements LoginInterface {
     async login(req: Request, res: Response): Promise<any> {
-        const pooling = await pool.query("fucn")
+        const pooling = await pool.query("")
 
         throw new Error("Method not implemented.");
     }
