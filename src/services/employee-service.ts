@@ -145,7 +145,7 @@ export default class Employeeservices implements EmployeesInterface {
       const data = req.body;
 
       const {
-        EmployeeNumber,
+        employee_id,
         AttendanceNumber,
         Location,
         LocationCountry,
@@ -173,7 +173,7 @@ export default class Employeeservices implements EmployeesInterface {
         NoticePeriod,
         CostCenter,
       } = data;
-      if (!EmployeeNumber || !AttendanceNumber || !Location || !JobTitle) {
+      if (!employee_id || !AttendanceNumber) {
         return {
           success: false,
           statusCode: 400,
@@ -189,7 +189,7 @@ export default class Employeeservices implements EmployeesInterface {
         (employee_id, attendance_number, location, location_country, legal_entity, business_unit, department, sub_department, job_title, secondary_job_title, reporting_to, reporting_manager_employee_number, dotted_line_manager, date_joined, leave_plan, band, pay_grade, time_type, worker_type, shift_policy_name, weekly_off_policy_name, attendance_time_tracking_policy, attendance_capture_scheme, holiday_list_name, expense_policy_name, notice_period, cost_center)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
-          EmployeeNumber,
+          employee_id,
           AttendanceNumber,
           Location,
           LocationCountry,
@@ -244,9 +244,43 @@ export default class Employeeservices implements EmployeesInterface {
   viewEmployement_details(req: Request, res: Response): Promise<any> {
     throw new Error("Method not implemented.");
   }
-  addExitdetails(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
+
+  async addExitdetails(req: Request, res: Response): Promise<any> {
+   const {
+      employee_id,
+      EmploymentStatus,
+      ExitDate,
+      Comments,
+      ExitStatus,
+      TerminationType,
+      TerminationReason,
+      ResignationNote
+    } = req.body;
+
+    try {
+      const [result]: any = await pool.query(
+        `INSERT INTO exit_details 
+        (employee_id, employment_status, exit_date, comments, exit_status, termination_type, termination_reason, resignation_note) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          employee_id,
+          EmploymentStatus,
+          ExitDate,
+          Comments,
+          ExitStatus,
+          TerminationType,
+          TerminationReason,
+          ResignationNote
+        ]
+      );
+
+      return { success: true, message: "Exit details added successfully", insertId: result.insertId };
+    } catch (error) {
+      console.error("Error inserting exit details:", error);
+      throw error;
+    }
   }
+   
   viewExitdetails(req: Request, res: Response): Promise<any> {
     throw new Error("Method not implemented.");
   }
@@ -256,7 +290,7 @@ export default class Employeeservices implements EmployeesInterface {
   editExitdetails(req: Request, res: Response): Promise<any> {
     throw new Error("Method not implemented.");
   }
-  addFamilyInfo(req: Request, res: Response): Promise<any> {
+  async addFamilyInfo(req: Request, res: Response): Promise<any> {
     throw new Error("Method not implemented.");
   }
   viewFamilyInfo(req: Request, res: Response): Promise<any> {
