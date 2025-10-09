@@ -13,4 +13,8 @@ export default class EmployeeController {
     const result = await employeeService.addAddress(req, res, addType);
     return res.status(result.statusCode).json(result);
   }
+  static async insertEmploymentDetails(req: Request, res: Response) {
+    const result = await employeeService.addEmployement_details(req, res);
+    return res.status(result.statusCode).json(result);
+  }
 }
