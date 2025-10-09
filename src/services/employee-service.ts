@@ -291,7 +291,38 @@ export default class Employeeservices implements EmployeesInterface {
     throw new Error("Method not implemented.");
   }
   async addFamilyInfo(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
+    try {
+      const { employee_id, FatherName, MotherName, SpouseName, ChildrenNames } =
+        req.body;
+      if (!employee_id) {
+        return {
+          success: false,
+          statusCode: 400,
+          message: "Missing required fields.",
+          error: "Validation Error",
+        };
+      }
+      const [result]: any = await pool.query(
+        `INSERT INTO family_info 
+        (employee_id, father_name, mother_name, spouse_name, children_names)
+        VALUES (?, ?, ?, ?, ?)`,
+        [employee_id, FatherName, MotherName, SpouseName, ChildrenNames]
+      );
+      return {
+        success: true,
+        statusCode: 201,
+        message: "Employee Family Details inserted successfully.",
+        data: { employee_id },
+      };
+    } catch (error: any) {
+      console.error("Error inserting employee:", error);
+      return {
+        success: false,
+        statusCode: 500,
+        message: "Internal server error.",
+        error: error.message,
+      };
+    }
   }
   viewFamilyInfo(req: Request, res: Response): Promise<any> {
     throw new Error("Method not implemented.");
@@ -302,8 +333,39 @@ export default class Employeeservices implements EmployeesInterface {
   editFamilyInfo(req: Request, res: Response): Promise<any> {
     throw new Error("Method not implemented.");
   }
-  addStatutoryInfo(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
+  async addStatutoryInfo(req: Request, res: Response): Promise<any> {
+    try {
+      const { employee_id, PANNumber, AadhaarNumber, PFNumber, UANNumber } =
+        req.body;
+      if (!employee_id) {
+        return {
+          success: false,
+          statusCode: 400,
+          message: "Missing required fields.",
+          error: "Validation Error",
+        };
+      }
+      const [result]: any = await pool.query(
+        `INSERT INTO statutory_info 
+        (employee_id, pan_number, aadhaar_number, pf_number, uan_number)
+        VALUES (?, ?, ?, ?, ?)`,
+        [employee_id, PANNumber, AadhaarNumber, PFNumber, UANNumber]
+      );
+      return {
+        success: true,
+        statusCode: 201,
+        message: "Employee Statutory info inserted successfully.",
+        data: { employee_id },
+      };
+    } catch (error: any) {
+      console.error("Error inserting employee:", error);
+      return {
+        success: false,
+        statusCode: 500,
+        message: "Internal server error.",
+        error: error.message,
+      };
+    }
   }
   viewStatutoryInfo(req: Request, res: Response): Promise<any> {
     throw new Error("Method not implemented.");
