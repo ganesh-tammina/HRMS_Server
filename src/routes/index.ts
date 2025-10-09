@@ -20,6 +20,14 @@ router.post(
   EmployeeController.insertEmploymentDetails
 );
 router.post(
+  "/v1/add-Statutory-Info",
+  EmployeeController.insertEmployeeStatutoryInfo
+);
+router.post(
+  "/v1/add-Employee-Family-Info",
+  EmployeeController.insertEmployeeFamilyInfo
+);
+router.post(
   "/v1/parse-excel",
   upload.single("file"),
   AdminController.uploadExcel
