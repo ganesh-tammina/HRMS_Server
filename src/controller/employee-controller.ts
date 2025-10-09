@@ -8,9 +8,13 @@ export default class EmployeeController {
     const result = await employeeService.addEmployees(req, res);
     return res.status(result.statusCode).json(result);
   }
-
-  static async insertEmployeeAddress(req: Request, res: Response) {
+  static async insertEmployeeCurrentAddress(req: Request, res: Response) {
     const addType = "Current";
+    const result = await employeeService.addAddress(req, res, addType);
+    return res.status(result.statusCode).json(result);
+  }
+  static async insertEmployeePermanentAddress(req: Request, res: Response) {
+    const addType = "Permanent";
     const result = await employeeService.addAddress(req, res, addType);
     return res.status(result.statusCode).json(result);
   }
@@ -26,13 +30,12 @@ export default class EmployeeController {
     const result = await employeeService.addFamilyInfo(req, res);
     return res.status(result.statusCode).json(result);
   }
-  static async insertExitDetails(req: Request, res: Response){
-     try {
-      const result = await employeeService.addExitdetails(req,res);
-      res.status(201).json(result);
-    } catch (error: any) {
-      res.status(500).json({ success: false, message: "Failed to add exit details", error: error.message });
-    }
-
+  static async insertExitDetails(req: Request, res: Response) {
+    const result = await employeeService.addExitdetails(req, res);
+    return res.status(result.statusCode).json(result);
+  }
+  static async insertBulkEmployees(req: Request, res: Response) {
+    const result = await Employeeservices.bulkInsertEmployees(req, res);
+    return res.status(result.statusCode).json(result);
   }
 }

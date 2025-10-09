@@ -4,7 +4,7 @@ export interface promised {
   success: boolean;
   statusCode: number;
   message: string;
-  data?: {} | string;
+  data?: {} | string | any;
   error?: {} | string;
 }
 export interface EmployeesInterface {
