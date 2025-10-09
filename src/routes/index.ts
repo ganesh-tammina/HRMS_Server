@@ -8,6 +8,7 @@ import EmployeeLoginController from "../controller/employee-login-controller";
 import AdminController from "../controller/admin-controller";
 import { checkWhoAmI } from "../middlewares/cookie-parser-middleware";
 import EmployeeController from "../controller/employee-controller";
+import EmploymentDetailsController from "../controller/employement-details-controller";
 
 const upload = multer({ dest: "uploads/" });
 
@@ -16,6 +17,7 @@ router.post("/v1/send-email", MailController.mailsender);
 router.post("/login",EmployeeLoginController.EmailCheck);
 router.post('/excel', upload.single('file'), ExcelProcessorService.extractData)
 router.post("/v1/add",EmployeeController.insertEmployee)
+router.post("/v1/addEmployementDetails", EmploymentDetailsController.insertEmploymentDetails);
 router.get("/test", async (req, res) => {
   const file = await readFile("./src/db.json", "utf8");
   const json = JSON.parse(file);
