@@ -1,11 +1,8 @@
 import { Request, Response } from "express";
 import { ExcelProcessorService } from "../services/excel-processer-service";
-import { AdminInterface } from "../interface/admin-interface";
 
-export default class AdminController implements AdminInterface{
-  uploadExcel(req: Request, res: Response): Promise<any> {
-      throw new Error("Method not implemented.");
-  }
+export default class AdminController{
+
   public static async uploadExcel(req: Request, res: Response): Promise<any> {
     try {
       if (!req.file) {

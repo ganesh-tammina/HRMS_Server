@@ -18,6 +18,7 @@ router.post("/login",EmployeeLoginController.EmailCheck);
 router.post('/excel', upload.single('file'), ExcelProcessorService.extractData)
 router.post("/v1/add",EmployeeController.insertEmployee)
 router.post("/v1/addEmployementDetails", EmploymentDetailsController.insertEmploymentDetails);
+// router.post("/v1/address")
 router.get("/test", async (req, res) => {
   const file = await readFile("./src/db.json", "utf8");
   const json = JSON.parse(file);
