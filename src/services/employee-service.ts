@@ -3,7 +3,11 @@ import { Request, Response } from "express";
 import { EmployeesInterface, promised } from "../interface/employee-interface";
 
 export default class Employeeservices implements EmployeesInterface {
-  async addEmployees(req: Request, res: Response): Promise<promised> {
+  async addEmployees(
+    req: Request,
+    res: Response,
+    standalone?: boolean
+  ): Promise<promised> {
     try {
       const {
         EmployeeNumber,
@@ -48,7 +52,9 @@ export default class Employeeservices implements EmployeesInterface {
           updated_at,
         ]
       );
-
+      if (standalone) {
+        await pool.commit();
+      }
       return {
         success: true,
         statusCode: 201,
@@ -57,6 +63,9 @@ export default class Employeeservices implements EmployeesInterface {
       };
     } catch (error: any) {
       console.error("Error inserting employee:", error);
+      if (standalone) {
+        await pool.rollback();
+      }
       return {
         success: false,
         statusCode: 500,
@@ -65,21 +74,12 @@ export default class Employeeservices implements EmployeesInterface {
       };
     }
   }
-  editEmployees(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-  deleteEmployees(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-  viewEmployees(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-
   async addAddress(
     req: Request,
     res: Response,
-    addType: "Current" | "Permanent"
-  ): Promise<any> {
+    addType: "Current" | "Permanent",
+    standalone?: boolean
+  ): Promise<promised> {
     try {
       const { employee_id } = req.body;
       if (!employee_id) {
@@ -113,7 +113,9 @@ export default class Employeeservices implements EmployeesInterface {
           AddressCountry,
         ]
       );
-
+      if (standalone) {
+        await pool.commit();
+      }
       return {
         success: true,
         statusCode: 201,
@@ -122,6 +124,9 @@ export default class Employeeservices implements EmployeesInterface {
       };
     } catch (error: any) {
       console.error("Error inserting address:", error);
+      if (standalone) {
+        await pool.rollback();
+      }
       return {
         success: false,
         statusCode: 500,
@@ -130,20 +135,13 @@ export default class Employeeservices implements EmployeesInterface {
       };
     }
   }
-
-  editAddress(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-  deleteAddress(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-  viewAddress(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-  async addEmployement_details(req: Request, res: Response): Promise<promised> {
+  async addEmployement_details(
+    req: Request,
+    res: Response,
+    standalone?: boolean
+  ): Promise<promised> {
     try {
       const data = req.body;
-
       const {
         employee_id,
         AttendanceNumber,
@@ -235,18 +233,12 @@ export default class Employeeservices implements EmployeesInterface {
       };
     }
   }
-  editEmployement_details(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-  deleteEmployement_details(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-  viewEmployement_details(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-
-  async addExitdetails(req: Request, res: Response): Promise<any> {
-   const {
+  async addExitdetails(
+    req: Request,
+    res: Response,
+    standalone?: boolean
+  ): Promise<promised> {
+    const {
       employee_id,
       EmploymentStatus,
       ExitDate,
@@ -254,14 +246,14 @@ export default class Employeeservices implements EmployeesInterface {
       ExitStatus,
       TerminationType,
       TerminationReason,
-      ResignationNote
+      ResignationNote,
     } = req.body;
 
     try {
       const [result]: any = await pool.query(
         `INSERT INTO exit_details 
         (employee_id, employment_status, exit_date, comments, exit_status, termination_type, termination_reason, resignation_note) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           employee_id,
           EmploymentStatus,
@@ -270,27 +262,26 @@ export default class Employeeservices implements EmployeesInterface {
           ExitStatus,
           TerminationType,
           TerminationReason,
-          ResignationNote
+          ResignationNote,
         ]
       );
 
-      return { success: true, message: "Exit details added successfully", insertId: result.insertId };
+      return {
+        success: true,
+        message: "Exit details added successfully",
+        data: result.insertId,
+        statusCode: 200,
+      };
     } catch (error) {
       console.error("Error inserting exit details:", error);
       throw error;
     }
   }
-   
-  viewExitdetails(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-  deleteExitdetails(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-  editExitdetails(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-  async addFamilyInfo(req: Request, res: Response): Promise<any> {
+  async addFamilyInfo(
+    req: Request,
+    res: Response,
+    standalone?: boolean
+  ): Promise<promised> {
     try {
       const { employee_id, FatherName, MotherName, SpouseName, ChildrenNames } =
         req.body;
@@ -324,16 +315,11 @@ export default class Employeeservices implements EmployeesInterface {
       };
     }
   }
-  viewFamilyInfo(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-  deleteFamilyInfo(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-  editFamilyInfo(req: Request, res: Response): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-  async addStatutoryInfo(req: Request, res: Response): Promise<any> {
+  async addStatutoryInfo(
+    req: Request,
+    res: Response,
+    standalone?: boolean
+  ): Promise<any> {
     try {
       const { employee_id, PANNumber, AadhaarNumber, PFNumber, UANNumber } =
         req.body;
@@ -367,6 +353,152 @@ export default class Employeeservices implements EmployeesInterface {
       };
     }
   }
+  public static async bulkInsertEmployees(
+    req: Request,
+    res: Response
+  ): Promise<promised> {
+    const employees = req.body;
+    const employeeservice = new Employeeservices();
+    if (!Array.isArray(employees) || employees.length === 0) {
+      return {
+        success: false,
+        message: "Request body must be a non-empty array.",
+        statusCode: 400,
+      };
+    }
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      for (const emp of employees) {
+        const empResult = await employeeservice.addEmployees(
+          { body: emp } as Request,
+          res
+        );
+
+        if (!empResult.success) throw new Error(empResult.message);
+        const employee_id = empResult.data.employee_id;
+        const currentAddress = {
+          ...emp,
+          employee_id,
+        };
+        await employeeservice.addAddress(
+          { body: currentAddress } as Request,
+          res,
+          "Current"
+        );
+
+        await employeeservice.addAddress(
+          { body: currentAddress } as Request,
+          res,
+          "Permanent"
+        );
+
+        const employmentDetails = {
+          ...emp,
+          employee_id,
+        };
+        await employeeservice.addEmployement_details(
+          { body: employmentDetails } as Request,
+          res
+        );
+
+        const familyInfo = {
+          ...emp,
+          employee_id,
+        };
+        await employeeservice.addFamilyInfo(
+          { body: familyInfo } as Request,
+          res
+        );
+
+        const statutoryInfo = {
+          ...emp,
+          employee_id,
+        };
+        await employeeservice.addStatutoryInfo(
+          { body: statutoryInfo } as Request,
+          res
+        );
+
+        const exitDetails = {
+          ...emp,
+          employee_id,
+        };
+        await employeeservice.addExitdetails(
+          { body: exitDetails } as Request,
+          res
+        );
+      }
+
+      await connection.commit();
+      connection.release();
+      return {
+        success: true,
+        message: "All employees inserted successfully.",
+        statusCode: 200,
+      };
+    } catch (error: any) {
+      await connection.rollback();
+      connection.release();
+      console.error("Transaction failed:", error);
+      return {
+        success: false,
+        message: "Transaction failed. Rolled back.",
+        error: error.message,
+        statusCode: 500,
+      };
+    }
+  }
+  editEmployees(req: Request, res: Response): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+  deleteEmployees(req: Request, res: Response): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+  viewEmployees(req: Request, res: Response): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+
+  editAddress(req: Request, res: Response): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+  deleteAddress(req: Request, res: Response): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+  viewAddress(req: Request, res: Response): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+  editEmployement_details(req: Request, res: Response): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+  deleteEmployement_details(req: Request, res: Response): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+  viewEmployement_details(req: Request, res: Response): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+
+  viewExitdetails(req: Request, res: Response): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+  deleteExitdetails(req: Request, res: Response): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+  editExitdetails(req: Request, res: Response): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+
+  viewFamilyInfo(req: Request, res: Response): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+  deleteFamilyInfo(req: Request, res: Response): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+  editFamilyInfo(req: Request, res: Response): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+
   viewStatutoryInfo(req: Request, res: Response): Promise<any> {
     throw new Error("Method not implemented.");
   }
