@@ -24,6 +24,7 @@ router.post(
   upload.single("file"),
   AdminController.uploadExcel
 );
+router.post("/v1/addExitDetails",EmployeeController.insertExitDetails);
 // router.post("/v1/address")
 
 // test apis here 🤡
