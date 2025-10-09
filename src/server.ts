@@ -6,6 +6,7 @@ import { pool } from "./config/database";
 import { config } from "./config/env";
 import index from "./routes/index";
 import { notFound } from "./middlewares/notFound.middleware";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ class Server {
   }
 
   private routes(): void {
+    this.app.use(cookieParser());
     this.app.use("/api", index);
     this.app.get("/api", async (req, res) => {
       res.json("Server is running");
