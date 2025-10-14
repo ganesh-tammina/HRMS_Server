@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { EmployeesInterface, promised } from "../interface/employee-interface";
 
 export default class Employeeservices implements EmployeesInterface {
+
   async addEmployees(
     req: Request,
     res: Response,
@@ -356,7 +357,7 @@ export default class Employeeservices implements EmployeesInterface {
   public static async bulkInsertEmployees(
     req: Request,
     res: Response
-  ): Promise<promised> {
+  ): Promise<any> {
     const employees = req.body;
     const employeeservice = new Employeeservices();
     if (!Array.isArray(employees) || employees.length === 0) {
