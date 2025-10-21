@@ -38,4 +38,6 @@ export interface EmployeesInterface {
   editStatutoryInfo(req: Request, res: Response): Promise<promised>;
 }
 export interface LoginInterface {
+  login(req: Request, res: Response): Promise<any>;
+  emailCheck(req: Request, res: Response): Promise<any>;
 }
